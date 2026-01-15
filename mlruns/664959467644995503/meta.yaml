@@ -1,0 +1,6 @@
+artifact_location: file:///workspaces/mlops-end-to-end-pipeline/mlruns/664959467644995503
+creation_time: 1768471856606
+experiment_id: '664959467644995503'
+last_update_time: 1768471856606
+lifecycle_stage: active
+name: churn-prediction

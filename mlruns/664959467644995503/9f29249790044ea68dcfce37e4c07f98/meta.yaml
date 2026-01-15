@@ -1,0 +1,15 @@
+artifact_uri: file:///workspaces/mlops-end-to-end-pipeline/mlruns/664959467644995503/9f29249790044ea68dcfce37e4c07f98/artifacts
+end_time: 1768471860088
+entry_point_name: ''
+experiment_id: '664959467644995503'
+lifecycle_stage: active
+run_id: 9f29249790044ea68dcfce37e4c07f98
+run_name: xgboost-training
+run_uuid: 9f29249790044ea68dcfce37e4c07f98
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1768471856659
+status: 3
+tags: []
+user_id: codespace
