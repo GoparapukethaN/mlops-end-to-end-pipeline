@@ -33,9 +33,9 @@ class ChurnModel:
         """Encode categorical features and prepare X, y."""
         df = df.copy()
         y = df.pop("Churn").values
-        
+
         categorical_cols = df.select_dtypes(include=["object"]).columns.tolist()
-        
+
         for col in categorical_cols:
             if fit:
                 le = LabelEncoder()
@@ -45,10 +45,10 @@ class ChurnModel:
                 le = self.label_encoders.get(col)
                 if le:
                     df[col] = df[col].astype(str).map(lambda x: le.transform([x])[0] if x in le.classes_ else -1)
-        
+
         if fit:
             self.feature_columns = df.columns.tolist()
-        
+
         return df.values, y
 
     def train(self, train_df: pd.DataFrame, params: Dict[str, Any] = None) -> Dict[str, float]:
@@ -59,20 +59,20 @@ class ChurnModel:
             "learning_rate": 0.1,
             "random_state": 42
         }
-        
+
         mlflow.set_experiment("churn-prediction")
-        
+
         with mlflow.start_run(run_name="xgboost-training"):
             mlflow.log_params(params)
-            
+
             X_train, y_train = self.prepare_features(train_df, fit=True)
-            
+
             self.model = XGBClassifier(**params, eval_metric="logloss")
             self.model.fit(X_train, y_train)
-            
+
             y_pred = self.model.predict(X_train)
             y_proba = self.model.predict_proba(X_train)[:, 1]
-            
+
             metrics = {
                 "train_accuracy": accuracy_score(y_train, y_pred),
                 "train_precision": precision_score(y_train, y_pred),
@@ -80,20 +80,20 @@ class ChurnModel:
                 "train_f1": f1_score(y_train, y_pred),
                 "train_auc": roc_auc_score(y_train, y_proba)
             }
-            
+
             mlflow.log_metrics(metrics)
             mlflow.sklearn.log_model(self.model, "model")
-            
+
             logger.info(f"Training metrics: {metrics}")
             return metrics
 
     def evaluate(self, test_df: pd.DataFrame) -> Dict[str, float]:
         """Evaluate model on test data."""
         X_test, y_test = self.prepare_features(test_df, fit=False)
-        
+
         y_pred = self.model.predict(X_test)
         y_proba = self.model.predict_proba(X_test)[:, 1]
-        
+
         metrics = {
             "test_accuracy": accuracy_score(y_test, y_pred),
             "test_precision": precision_score(y_test, y_pred),
@@ -101,10 +101,10 @@ class ChurnModel:
             "test_f1": f1_score(y_test, y_pred),
             "test_auc": roc_auc_score(y_test, y_proba)
         }
-        
+
         with mlflow.start_run(run_name="xgboost-evaluation"):
             mlflow.log_metrics(metrics)
-        
+
         logger.info(f"Test metrics: {metrics}")
         return metrics
 
@@ -132,12 +132,12 @@ class ChurnModel:
 if __name__ == "__main__":
     train_df = pd.read_csv("data/processed/train.csv")
     test_df = pd.read_csv("data/processed/test.csv")
-    
+
     model = ChurnModel()
     train_metrics = model.train(train_df)
     test_metrics = model.evaluate(test_df)
     model.save()
-    
+
     print("\n=== Training Complete ===")
     print(f"Train Accuracy: {train_metrics['train_accuracy']:.4f}")
     print(f"Test Accuracy: {test_metrics['test_accuracy']:.4f}")

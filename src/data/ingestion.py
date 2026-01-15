@@ -58,7 +58,7 @@ class DataIngestion:
 if __name__ == "__main__":
     ingestion = DataIngestion()
     train_df, test_df = ingestion.run()
-    
+
     os.makedirs("data/processed", exist_ok=True)
     train_df.to_csv("data/processed/train.csv", index=False)
     test_df.to_csv("data/processed/test.csv", index=False)
