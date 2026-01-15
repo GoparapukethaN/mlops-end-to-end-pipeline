@@ -46,4 +46,3 @@ jobs:
         run: |
           docker images | grep churn-prediction
           echo "Docker image built successfully!"
-```
