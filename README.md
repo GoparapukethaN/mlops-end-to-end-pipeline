@@ -60,10 +60,11 @@ This project predicts customer churn for a telecommunications company using the 
 
 
 ### API Documentation (Swagger UI)
-![Swagger UI](screenshots/swagger-docs.png)
+![Swagger UI] <img width="1080" height="2724" alt="modified_image (10)" src="https://github.com/user-attachments/assets/800a1deb-4792-43d9-9d5f-5e23e914fdf7" />
 
 ### Prediction Response
-![Prediction] <img width="1080" height="2724" alt="modified_image (10)" src="https://github.com/user-attachments/assets/800a1deb-4792-43d9-9d5f-5e23e914fdf7" />
+![Prediction] <img width="1080" height="1163" alt="modified_image (11)" src="https://github.com/user-attachments/assets/ffc2efe3-54d4-45c5-af48-e89a4636b5d6" />
+
 
 
 ## 🚀 Quick Start
