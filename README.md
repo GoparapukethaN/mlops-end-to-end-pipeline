@@ -1,221 +1,226 @@
-# Customer Churn Prediction - MLOps Pipeline
+# 🚀 MLOps End-to-End Pipeline: Customer Churn Prediction
 
-End-to-end machine learning pipeline for predicting customer churn, built with production-grade MLOps practices. This project demonstrates the complete ML lifecycle from data ingestion to model deployment with monitoring.
+[![CI/CD Pipeline](https://github.com/GoparapukethaN/mlops-end-to-end-pipeline/actions/workflows/CI-CD.yaml/badge.svg)](https://github.com/GoparapukethaN/mlops-end-to-end-pipeline/actions/workflows/CI-CD.yaml)
+[![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-## Overview
+A production-ready MLOps pipeline demonstrating end-to-end machine learning workflow including data ingestion, model training with experiment tracking, REST API deployment, containerization, and CI/CD automation.
 
-Built this project to showcase how I approach ML systems in production. The pipeline predicts customer churn for a telecom dataset using XGBoost, with the entire workflow containerized and deployed on Kubernetes.
+## 📊 Project Overview
 
-**What's included:**
-- Automated data validation and feature engineering
-- - Model training with experiment tracking (MLflow)
-  - - REST API for real-time predictions (FastAPI)
-    - - Docker containerization with multi-stage builds
-      - - Kubernetes deployment with auto-scaling
-        - - CI/CD pipelines (GitHub Actions)
-          - - Monitoring with Prometheus & Grafana
-           
-            - ## Architecture
-           
-            - ```
-              ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-              │   Raw Data  │────▶│  Feature    │────▶│   Model     │
-              │  Ingestion  │     │  Pipeline   │     │  Training   │
-              └─────────────┘     └─────────────┘     └──────┬──────┘
-                                                             │
-                                  ┌──────────────────────────┘
-                                  ▼
-              ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-              │   MLflow    │◀────│   Model     │────▶│  FastAPI    │
-              │  Registry   │     │  Artifacts  │     │   Service   │
-              └─────────────┘     └─────────────┘     └──────┬──────┘
-                                                             │
-                                  ┌──────────────────────────┘
-                                  ▼
-              ┌─────────────────────────────────────────────────────┐
-              │              Kubernetes Cluster                      │
-              │  ┌─────────┐  ┌─────────┐  ┌─────────┐            │
-              │  │   API   │  │Prometheus│  │ Grafana │            │
-              │  │  Pods   │  │          │  │         │            │
-              │  └─────────┘  └─────────┘  └─────────┘            │
-              └─────────────────────────────────────────────────────┘
-              ```
+This project predicts customer churn for a telecommunications company using the IBM Telco Customer Churn dataset. It demonstrates industry best practices for deploying ML models in production.
 
-              ## Tech Stack
+### 🎯 Model Performance
 
-              | Component | Technology |
-              |-----------|------------|
-              | ML Framework | XGBoost, scikit-learn |
-              | Experiment Tracking | MLflow |
-              | API | FastAPI, Uvicorn |
-              | Containerization | Docker |
-              | Orchestration | Kubernetes, Helm |
-              | CI/CD | GitHub Actions |
-              | Monitoring | Prometheus, Grafana |
-              | Data Validation | Great Expectations |
+| Metric | Score |
+|--------|-------|
+| Train Accuracy | 84.5% |
+| Test Accuracy | 80.1% |
+| AUC-ROC | 0.84 |
+| Precision | 0.65 |
+| Recall | 0.54 |
+| F1-Score | 0.59 |
 
-              ## Project Structure
+## 🏗️ Architecture
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Data Source   │────▶│  Data Pipeline  │────▶│  Model Training │
+│  (IBM Telco)    │     │  (ingestion.py) │     │   (train.py)    │
+└─────────────────┘     └─────────────────┘     └────────┬────────┘
+                                                         │
+                                                         ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Prometheus    │◀────│    FastAPI      │◀────│    MLflow       │
+│   Monitoring    │     │   (main.py)     │     │   Tracking      │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+                                │
+                                ▼
+                        ┌─────────────────┐
+                        │  Docker/K8s     │
+                        │  Deployment     │
+                        └─────────────────┘
+```
 
-              ```
-              ├── src/
-              │   ├── data/
-              │   │   ├── ingestion.py
-              │   │   ├── validation.py
-              │   │   └── preprocessing.py
-              │   ├── features/
-              │   │   ├── build_features.py
-              │   │   └── feature_store.py
-              │   ├── models/
-              │   │   ├── train.py
-              │   │   ├── evaluate.py
-              │   │   └── predict.py
-              │   └── api/
-              │       ├── main.py
-              │       ├── routes.py
-              │       └── schemas.py
-              ├── kubernetes/
-              │   ├── deployment.yaml
-              │   ├── service.yaml
-              │   ├── hpa.yaml
-              │   └── configmap.yaml
-              ├── docker/
-              │   ├── Dockerfile
-              │   └── docker-compose.yml
-              ├── monitoring/
-              │   ├── prometheus/
-              │   └── grafana/
-              ├── tests/
-              ├── notebooks/
-              ├── .github/workflows/
-              ├── configs/
-              ├── requirements.txt
-              └── Makefile
-              ```
+## ✨ Features
 
-              ## Getting Started
+- **Data Pipeline**: Automated data ingestion and preprocessing
+- **ML Training**: XGBoost classifier with hyperparameter tuning
+- **Experiment Tracking**: MLflow for model versioning and metrics logging
+- **REST API**: FastAPI with automatic Swagger documentation
+- **Monitoring**: Prometheus metrics for predictions and latency
+- **Containerization**: Docker-ready with multi-stage builds
+- **Orchestration**: Kubernetes manifests for scalable deployment
+- **CI/CD**: GitHub Actions for automated testing and building
 
-              ### Prerequisites
+## 📸 Screenshots
 
-              - Python 3.10+
-              - - Docker & Docker Compose
-                - - kubectl (for K8s deployment)
-                  - - Make
-                   
-                    - ### Local Setup
-                   
-                    - ```bash
-                      # Clone the repo
-                      git clone https://github.com/GoparapukethaN/mlops-end-to-end-pipeline.git
-                      cd mlops-end-to-end-pipeline
+### CI/CD Pipeline - All Checks Passing ✅
+![CI/CD Pipeline](<img width="1280" height="593" alt="Screenshot 2026-01-15 at 1 36 23 PM" src="https://github.com/user-attachments/assets/a759f4e7-5233-4b8d-9dd0-f35bf54f9e4d" />
 
-                      # Create virtual environment
-                      python -m venv venv
-                      source venv/bin/activate
 
-                      # Install dependencies
-                      pip install -r requirements.txt
+### API Documentation (Swagger UI)
+![Swagger UI](screenshots/swagger-docs.png)
 
-                      # Run data pipeline
-                      python -m src.data.ingestion
-                      python -m src.features.build_features
+### Prediction Response
+![Prediction] <img width="1080" height="2724" alt="modified_image (10)" src="https://github.com/user-attachments/assets/800a1deb-4792-43d9-9d5f-5e23e914fdf7" />
 
-                      # Train model
-                      python -m src.models.train
 
-                      # Start API locally
-                      uvicorn src.api.main:app --reload --port 8000
-                      ```
+## 🚀 Quick Start
 
-                      ### Docker Deployment
+### Prerequisites
+- Python 3.10+
+- Docker (optional)
 
-                      ```bash
-                      # Build and run all services
-                      docker-compose -f docker/docker-compose.yml up -d
+### Local Development
+```bash
+# Clone the repository
+git clone https://github.com/GoparapukethaN/mlops-end-to-end-pipeline.git
+cd mlops-end-to-end-pipeline
 
-                      # Services available at:
-                      # API: http://localhost:8000
-                      # MLflow: http://localhost:5000
-                      # Prometheus: http://localhost:9090
-                      # Grafana: http://localhost:3000
-                      ```
+# Install dependencies
+pip install -r requirements.txt
 
-                      ### Kubernetes Deployment
+# Run data ingestion
+python -m src.data.ingestion
 
-                      ```bash
-                      # Apply manifests
-                      kubectl apply -f kubernetes/
+# Train the model
+python -m src.models.train
 
-                      # Check pods
-                      kubectl get pods -n mlops
+# Start the API
+python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+```
 
-                      # Port forward to test
-                      kubectl port-forward svc/churn-api 8000:80 -n mlops
-                      ```
+### Docker Deployment
+```bash
+# Build the image
+docker build -t churn-prediction:latest -f docker/Dockerfile .
 
-                      ## API Usage
+# Run the container
+docker run -p 8000:8000 churn-prediction:latest
+```
 
-                      ### Health Check
-                      ```bash
-                      curl http://localhost:8000/health
-                      ```
+## 📡 API Endpoints
 
-                      ### Prediction
-                      ```bash
-                      curl -X POST http://localhost:8000/predict \
-                        -H "Content-Type: application/json" \
-                        -d '{
-                          "tenure": 24,
-                          "monthly_charges": 65.5,
-                          "total_charges": 1572.0,
-                          "contract": "Month-to-month",
-                          "payment_method": "Electronic check"
-                        }'
-                      ```
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Service status |
+| `/health` | GET | Health check |
+| `/predict` | POST | Get churn prediction |
+| `/metrics` | GET | Prometheus metrics |
+| `/docs` | GET | Swagger documentation |
 
-                      ### Response
-                      ```json
-                      {
-                        "prediction": "churn",
-                        "probability": 0.73,
-                        "model_version": "1.0.2"
-                      }
-                      ```
+### Sample Prediction Request
+```bash
+curl -X POST "http://localhost:8000/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tenure": 12,
+    "MonthlyCharges": 70.5,
+    "TotalCharges": 846.0,
+    "Contract": "Month-to-month",
+    "PaymentMethod": "Electronic check",
+    "gender": "Female",
+    "SeniorCitizen": 0,
+    "Partner": "Yes",
+    "Dependents": "No",
+    "PhoneService": "Yes",
+    "MultipleLines": "No",
+    "InternetService": "Fiber optic",
+    "OnlineSecurity": "No",
+    "OnlineBackup": "No",
+    "DeviceProtection": "No",
+    "TechSupport": "No",
+    "StreamingTV": "Yes",
+    "StreamingMovies": "Yes",
+    "PaperlessBilling": "Yes"
+  }'
+```
 
-                      ## Model Performance
+### Sample Response
+```json
+{
+  "churn_probability": 0.72,
+  "churn_prediction": "Yes",
+  "risk_level": "High"
+}
+```
 
-                      | Metric | Value |
-                      |--------|-------|
-                      | Accuracy | 0.81 |
-                      | Precision | 0.79 |
-                      | Recall | 0.76 |
-                      | F1 Score | 0.77 |
-                      | AUC-ROC | 0.84 |
+## 🛠️ Tech Stack
 
-                      ## Monitoring
+| Category | Technologies |
+|----------|-------------|
+| **ML Framework** | XGBoost, Scikit-learn |
+| **Experiment Tracking** | MLflow |
+| **API Framework** | FastAPI, Uvicorn |
+| **Monitoring** | Prometheus |
+| **Containerization** | Docker |
+| **Orchestration** | Kubernetes |
+| **CI/CD** | GitHub Actions |
+| **Language** | Python 3.10 |
 
-                      Grafana dashboards track:
-                      - API latency (p50, p95, p99)
-                      - - Request throughput
-                        - - Model prediction distribution
-                          - - Data drift metrics
-                            - - Resource utilization
-                             
-                              - ## CI/CD Pipeline
-                             
-                              - The GitHub Actions workflow handles:
-                              - 1. Code linting (flake8, black)
-                                2. 2. Unit tests (pytest)
-                                   3. 3. Docker image build
-                                      4. 4. Push to container registry
-                                         5. 5. Deploy to K8s cluster
-                                           
-                                            6. ## Future Improvements
-                                           
-                                            7. - [ ] Add A/B testing capability
-                                               - [ ] - [ ] Implement feature store with Feast
-                                               - [ ] - [ ] Add model retraining triggers
-                                               - [ ] - [ ] Set up Slack alerts for drift detection
-                                              
-                                               - [ ] ## License
-                                              
-                                               - [ ] MIT
+## 📁 Project Structure
+```
+mlops-end-to-end-pipeline/
+├── .github/workflows/     # CI/CD pipelines
+│   └── CI-CD.yaml
+├── configs/               # Configuration files
+│   └── config.yaml
+├── data/
+│   ├── raw/              # Raw downloaded data
+│   └── processed/        # Train/test splits
+├── docker/               # Docker configurations
+│   └── Dockerfile
+├── kubernetes/           # K8s manifests
+│   ├── deployment.yaml
+│   └── service.yaml
+├── mlruns/               # MLflow experiment logs
+├── models/               # Saved model artifacts
+│   └── churn_model.joblib
+├── src/
+│   ├── api/              # FastAPI application
+│   │   └── main.py
+│   ├── data/             # Data processing
+│   │   └── ingestion.py
+│   └── models/           # Model training
+│       └── train.py
+├── tests/                # Unit tests
+├── requirements.txt
+└── README.md
+```
+
+## 📈 MLflow Experiment Tracking
+
+The project uses MLflow to track:
+- Model parameters (n_estimators, max_depth, learning_rate)
+- Metrics (accuracy, precision, recall, F1, AUC)
+- Model artifacts (saved model files)
+
+## 🔄 CI/CD Pipeline
+
+The GitHub Actions workflow includes:
+
+1. **Test Job**
+   - Code checkout
+   - Python setup
+   - Dependency installation
+   - Linting with Flake8
+   - Unit tests with Pytest
+
+2. **Build Job**
+   - Docker image build
+   - Image verification
+
+## 👤 Author
+
+**Kethan Goparapuketha**
+- GitHub: [@GoparapukethaN](https://github.com/GoparapukethaN)
+- LinkedIn: [Connect with me](https://www.linkedin.com/in/kethan-goparapu/)
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+⭐ **If you found this project helpful, please give it a star!**
