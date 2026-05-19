@@ -24,9 +24,9 @@ without retraining first.
 | Train Accuracy | 84.5% |
 | Test Accuracy | 80.1% |
 | AUC-ROC | 0.84 |
-| Precision | 0.65 |
-| Recall | 0.54 |
-| F1-Score | 0.59 |
+| Precision | 0.66 |
+| Recall | 0.52 |
+| F1-Score | 0.58 |
 
 ## Architecture
 
@@ -82,18 +82,20 @@ docker run -p 8000:8000 churn-prediction:latest
 
 ## Verification
 
+Run the full local verification path:
+
 ```bash
-pytest
-flake8 src tests --ignore=E501,W292,W293,F401,E302,E303,E261,E262 --max-line-length=150
-black --check src tests
-isort --check-only src tests
-python -m py_compile tests/test_api.py
-python - <<'PY'
-import yaml
-yaml.safe_load(open("configs/prometheus.yml", encoding="utf-8"))
-print("prometheus config ok")
-PY
-docker compose config --quiet
+make verify
+```
+
+Or run the parts separately:
+
+```bash
+make test
+make lint
+make format-check
+make prometheus-check
+make compose-check
 ```
 
 ## API Endpoints
@@ -155,7 +157,7 @@ curl -X POST "http://localhost:8000/predict" \
 | Monitoring | Prometheus |
 | Containerization | Docker |
 | Orchestration | Kubernetes |
-| CI/CD | GitHub Actions workflow scaffold |
+| Verification | pytest, flake8, Black, isort, Docker Compose config |
 | Language | Python 3.10 |
 
 ## Project Structure
@@ -173,6 +175,8 @@ mlops-end-to-end-pipeline/
 │   └── Dockerfile
 ├── kubernetes/
 │   └── deployment.yaml
+├── scripts/
+│   └── verify-local.sh
 ├── mlruns/
 ├── models/
 │   └── churn_model.joblib
@@ -181,6 +185,7 @@ mlops-end-to-end-pipeline/
 │   ├── data/
 │   └── models/
 ├── tests/
+├── Makefile
 ├── requirements.txt
 └── README.md
 ```
@@ -193,11 +198,11 @@ The training code logs:
 - metrics: accuracy, precision, recall, F1, AUC
 - model artifacts
 
-## CI/CD Status
+## Verification Status
 
-The repository includes a GitHub Actions workflow scaffold for dependency installation,
-linting, testing, and Docker builds. The next polish step is to make that workflow run
-the verification commands above without placeholder steps.
+The repository currently uses local verification rather than hosted CI. The local checks
+cover API tests, linting, formatting, Prometheus config parsing, and Docker Compose
+configuration validation.
 
 ## Author
 

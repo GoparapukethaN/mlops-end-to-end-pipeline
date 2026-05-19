@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -x ".venv/bin/python" ]]; then
+  python_cmd=".venv/bin/python"
+else
+  python_cmd="${PYTHON:-python3}"
+fi
+
+"$python_cmd" -m pytest
+"$python_cmd" -m flake8 src tests \
+  --ignore=E501,W292,W293,F401,E302,E303,E261,E262 \
+  --max-line-length=150
+"$python_cmd" -m black --check src tests
+"$python_cmd" -m isort --check-only src tests
+"$python_cmd" -m py_compile tests/test_api.py
+"$python_cmd" - <<'PY'
+import yaml
+
+yaml.safe_load(open("configs/prometheus.yml", encoding="utf-8"))
+print("prometheus config ok")
+PY
+docker compose config --quiet
+
+echo "local verification passed"
