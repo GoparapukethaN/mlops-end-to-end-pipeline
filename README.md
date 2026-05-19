@@ -1,20 +1,26 @@
-# 🚀 MLOps End-to-End Pipeline: Customer Churn Prediction
+# MLOps End-to-End Pipeline: Customer Churn Prediction
 
-[![CI/CD Pipeline](https://github.com/GoparapukethaN/mlops-end-to-end-pipeline/actions/workflows/CI-CD.yaml/badge.svg)](https://github.com/GoparapukethaN/mlops-end-to-end-pipeline/actions/workflows/CI-CD.yaml)
 [![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-A production-ready MLOps pipeline demonstrating end-to-end machine learning workflow including data ingestion, model training with experiment tracking, REST API deployment, containerization, and CI/CD automation.
+An end-to-end MLOps project for customer churn prediction. I use it to practice the core
+workflow around a model service: data ingestion, model training, experiment tracking,
+FastAPI serving, Prometheus metrics, Docker packaging, and Kubernetes manifests.
 
-## 📊 Project Overview
+This is a portfolio-scale implementation, not a production system with live traffic. The
+useful part is the shape of the workflow and the verification around it.
 
-This project predicts customer churn for a telecommunications company using the IBM Telco Customer Churn dataset. It demonstrates industry best practices for deploying ML models in production.
+## Project Overview
 
-### 🎯 Model Performance
+The model predicts customer churn using the IBM Telco Customer Churn dataset. The repo
+keeps the trained artifact in `models/churn_model.joblib` so the API can be smoke-tested
+without retraining first.
+
+## Model Performance
 
 | Metric | Score |
-|--------|-------|
+| ------ | ----- |
 | Train Accuracy | 84.5% |
 | Test Accuracy | 80.1% |
 | AUC-ROC | 0.84 |
@@ -22,96 +28,87 @@ This project predicts customer churn for a telecommunications company using the 
 | Recall | 0.54 |
 | F1-Score | 0.59 |
 
-## 🏗️ Architecture
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   Data Source   │────▶│  Data Pipeline  │────▶│  Model Training │
-│  (IBM Telco)    │     │  (ingestion.py) │     │   (train.py)    │
-└─────────────────┘     └─────────────────┘     └────────┬────────┘
-                                                         │
-                                                         ▼
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   Prometheus    │◀────│    FastAPI      │◀────│    MLflow       │
-│   Monitoring    │     │   (main.py)     │     │   Tracking      │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-                                │
-                                ▼
-                        ┌─────────────────┐
-                        │  Docker/K8s     │
-                        │  Deployment     │
-                        └─────────────────┘
+## Architecture
+
+```mermaid
+flowchart LR
+    A["IBM Telco dataset"] --> B["Data ingestion"]
+    B --> C["XGBoost training"]
+    C --> D["MLflow metrics"]
+    C --> E["Saved model artifact"]
+    E --> F["FastAPI prediction service"]
+    F --> G["Prometheus metrics"]
+    F --> H["Docker / Kubernetes configs"]
 ```
 
-## ✨ Features
+## Features
 
-- **Data Pipeline**: Automated data ingestion and preprocessing
-- **ML Training**: XGBoost classifier with hyperparameter tuning
-- **Experiment Tracking**: MLflow for model versioning and metrics logging
-- **REST API**: FastAPI with automatic Swagger documentation
-- **Monitoring**: Prometheus metrics for predictions and latency
-- **Containerization**: Docker-ready with multi-stage builds
-- **Orchestration**: Kubernetes manifests for scalable deployment
-- **CI/CD**: GitHub Actions for automated testing and building
+- **Data pipeline:** ingestion and preprocessing for the churn dataset
+- **Model training:** XGBoost classifier with logged parameters and metrics
+- **Experiment tracking:** MLflow metrics and model artifacts
+- **API serving:** FastAPI endpoints for health, readiness, prediction, metrics, and docs
+- **Monitoring:** Prometheus scrape config for prediction and latency metrics
+- **Packaging:** Dockerfile, Docker Compose, and Kubernetes deployment manifest
+- **Testing:** FastAPI smoke tests for health, readiness, prediction, and metrics
 
-## 📸 Screenshots
-
-### CI/CD Pipeline - All Checks Passing ✅
-![CI/CD Pipeline](<img width="1280" height="593" alt="Screenshot 2026-01-15 at 1 36 23 PM" src="https://github.com/user-attachments/assets/a759f4e7-5233-4b8d-9dd0-f35bf54f9e4d" />
-
-
-### API Documentation (Swagger UI)
-![Swagger UI] <img width="1080" height="2724" alt="modified_image (10)" src="https://github.com/user-attachments/assets/800a1deb-4792-43d9-9d5f-5e23e914fdf7" />
-
-### Prediction Response
-![Prediction] <img width="1080" height="1163" alt="modified_image (11)" src="https://github.com/user-attachments/assets/ffc2efe3-54d4-45c5-af48-e89a4636b5d6" />
-
-
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
+
 - Python 3.10+
-- Docker (optional)
+- Docker, optional
 
 ### Local Development
+
 ```bash
-# Clone the repository
 git clone https://github.com/GoparapukethaN/mlops-end-to-end-pipeline.git
 cd mlops-end-to-end-pipeline
 
-# Install dependencies
+python -m venv .venv
+. .venv/bin/activate
 pip install -r requirements.txt
 
-# Run data ingestion
 python -m src.data.ingestion
-
-# Train the model
 python -m src.models.train
-
-# Start the API
 python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8000
 ```
 
-### Docker Deployment
-```bash
-# Build the image
-docker build -t churn-prediction:latest -f docker/Dockerfile .
+### Docker
 
-# Run the container
+```bash
+docker build -t churn-prediction:latest -f docker/Dockerfile .
 docker run -p 8000:8000 churn-prediction:latest
 ```
 
-## 📡 API Endpoints
+## Verification
+
+```bash
+pytest
+flake8 src tests --ignore=E501,W292,W293,F401,E302,E303,E261,E262 --max-line-length=150
+black --check src tests
+isort --check-only src tests
+python -m py_compile tests/test_api.py
+python - <<'PY'
+import yaml
+yaml.safe_load(open("configs/prometheus.yml", encoding="utf-8"))
+print("prometheus config ok")
+PY
+docker compose config --quiet
+```
+
+## API Endpoints
 
 | Endpoint | Method | Description |
-|----------|--------|-------------|
+| -------- | ------ | ----------- |
 | `/` | GET | Service status |
 | `/health` | GET | Health check |
-| `/predict` | POST | Get churn prediction |
+| `/health/ready` | GET | Readiness check for model loading |
+| `/predict` | POST | Churn prediction |
 | `/metrics` | GET | Prometheus metrics |
 | `/docs` | GET | Swagger documentation |
 
 ### Sample Prediction Request
+
 ```bash
 curl -X POST "http://localhost:8000/predict" \
   -H "Content-Type: application/json" \
@@ -139,89 +136,76 @@ curl -X POST "http://localhost:8000/predict" \
 ```
 
 ### Sample Response
+
 ```json
 {
   "churn_probability": 0.72,
-  "churn_prediction": "Yes",
+  "churn_prediction": 1,
   "risk_level": "High"
 }
 ```
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Category | Technologies |
-|----------|-------------|
-| **ML Framework** | XGBoost, Scikit-learn |
-| **Experiment Tracking** | MLflow |
-| **API Framework** | FastAPI, Uvicorn |
-| **Monitoring** | Prometheus |
-| **Containerization** | Docker |
-| **Orchestration** | Kubernetes |
-| **CI/CD** | GitHub Actions |
-| **Language** | Python 3.10 |
+| -------- | ------------ |
+| ML framework | XGBoost, Scikit-learn |
+| Experiment tracking | MLflow |
+| API framework | FastAPI, Uvicorn |
+| Monitoring | Prometheus |
+| Containerization | Docker |
+| Orchestration | Kubernetes |
+| CI/CD | GitHub Actions workflow scaffold |
+| Language | Python 3.10 |
 
-## 📁 Project Structure
-```
+## Project Structure
+
+```text
 mlops-end-to-end-pipeline/
-├── .github/workflows/     # CI/CD pipelines
+├── .github/workflows/
 │   └── CI-CD.yaml
-├── configs/               # Configuration files
-│   └── config.yaml
+├── configs/
+│   └── prometheus.yml
 ├── data/
-│   ├── raw/              # Raw downloaded data
-│   └── processed/        # Train/test splits
-├── docker/               # Docker configurations
+│   ├── raw/
+│   └── processed/
+├── docker/
 │   └── Dockerfile
-├── kubernetes/           # K8s manifests
-│   ├── deployment.yaml
-│   └── service.yaml
-├── mlruns/               # MLflow experiment logs
-├── models/               # Saved model artifacts
+├── kubernetes/
+│   └── deployment.yaml
+├── mlruns/
+├── models/
 │   └── churn_model.joblib
 ├── src/
-│   ├── api/              # FastAPI application
-│   │   └── main.py
-│   ├── data/             # Data processing
-│   │   └── ingestion.py
-│   └── models/           # Model training
-│       └── train.py
-├── tests/                # Unit tests
+│   ├── api/
+│   ├── data/
+│   └── models/
+├── tests/
 ├── requirements.txt
 └── README.md
 ```
 
-## 📈 MLflow Experiment Tracking
+## MLflow Experiment Tracking
 
-The project uses MLflow to track:
-- Model parameters (n_estimators, max_depth, learning_rate)
-- Metrics (accuracy, precision, recall, F1, AUC)
-- Model artifacts (saved model files)
+The training code logs:
 
-## 🔄 CI/CD Pipeline
+- model parameters: `n_estimators`, `max_depth`, `learning_rate`
+- metrics: accuracy, precision, recall, F1, AUC
+- model artifacts
 
-The GitHub Actions workflow includes:
+## CI/CD Status
 
-1. **Test Job**
-   - Code checkout
-   - Python setup
-   - Dependency installation
-   - Linting with Flake8
-   - Unit tests with Pytest
+The repository includes a GitHub Actions workflow scaffold for dependency installation,
+linting, testing, and Docker builds. The next polish step is to make that workflow run
+the verification commands above without placeholder steps.
 
-2. **Build Job**
-   - Docker image build
-   - Image verification
-
-## 👤 Author
+## Author
 
 **Kethan Goparapuketha**
+
 - GitHub: [@GoparapukethaN](https://github.com/GoparapukethaN)
 - LinkedIn: [Connect with me](https://www.linkedin.com/in/kethan-goparapu/)
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-⭐ **If you found this project helpful, please give it a star!**
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

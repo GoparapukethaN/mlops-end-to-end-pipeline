@@ -1,19 +1,25 @@
 """
 Model training module with MLflow tracking.
 """
-import os
 import logging
-import joblib
+import os
 from pathlib import Path
-from typing import Dict, Any, Tuple
+from typing import Any, Dict, Tuple
 
-import pandas as pd
-import numpy as np
-from sklearn.preprocessing import LabelEncoder
-from xgboost import XGBClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+import joblib
 import mlflow
 import mlflow.sklearn
+import numpy as np
+import pandas as pd
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
+from sklearn.preprocessing import LabelEncoder
+from xgboost import XGBClassifier
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,7 +35,9 @@ class ChurnModel:
         self.label_encoders: Dict[str, LabelEncoder] = {}
         self.feature_columns = []
 
-    def prepare_features(self, df: pd.DataFrame, fit: bool = False) -> Tuple[np.ndarray, np.ndarray]:
+    def prepare_features(
+        self, df: pd.DataFrame, fit: bool = False
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """Encode categorical features and prepare X, y."""
         df = df.copy()
         y = df.pop("Churn").values
@@ -44,20 +52,26 @@ class ChurnModel:
             else:
                 le = self.label_encoders.get(col)
                 if le:
-                    df[col] = df[col].astype(str).map(lambda x: le.transform([x])[0] if x in le.classes_ else -1)
+                    df[col] = (
+                        df[col]
+                        .astype(str)
+                        .map(lambda x: le.transform([x])[0] if x in le.classes_ else -1)
+                    )
 
         if fit:
             self.feature_columns = df.columns.tolist()
 
         return df.values, y
 
-    def train(self, train_df: pd.DataFrame, params: Dict[str, Any] = None) -> Dict[str, float]:
+    def train(
+        self, train_df: pd.DataFrame, params: Dict[str, Any] = None
+    ) -> Dict[str, float]:
         """Train the model with MLflow tracking."""
         params = params or {
             "n_estimators": 100,
             "max_depth": 5,
             "learning_rate": 0.1,
-            "random_state": 42
+            "random_state": 42,
         }
 
         mlflow.set_experiment("churn-prediction")
@@ -78,7 +92,7 @@ class ChurnModel:
                 "train_precision": precision_score(y_train, y_pred),
                 "train_recall": recall_score(y_train, y_pred),
                 "train_f1": f1_score(y_train, y_pred),
-                "train_auc": roc_auc_score(y_train, y_proba)
+                "train_auc": roc_auc_score(y_train, y_proba),
             }
 
             mlflow.log_metrics(metrics)
@@ -99,7 +113,7 @@ class ChurnModel:
             "test_precision": precision_score(y_test, y_pred),
             "test_recall": recall_score(y_test, y_pred),
             "test_f1": f1_score(y_test, y_pred),
-            "test_auc": roc_auc_score(y_test, y_proba)
+            "test_auc": roc_auc_score(y_test, y_proba),
         }
 
         with mlflow.start_run(run_name="xgboost-evaluation"):
@@ -114,7 +128,7 @@ class ChurnModel:
         artifacts = {
             "model": self.model,
             "label_encoders": self.label_encoders,
-            "feature_columns": self.feature_columns
+            "feature_columns": self.feature_columns,
         }
         joblib.dump(artifacts, model_path)
         logger.info(f"Model saved to {model_path}")

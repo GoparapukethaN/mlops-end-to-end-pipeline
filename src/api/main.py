@@ -1,17 +1,17 @@
 """
 FastAPI service for churn prediction with Prometheus metrics.
 """
-import os
 import logging
-from typing import Dict, Any
+import os
 from contextlib import asynccontextmanager
+from typing import Any, Dict
 
 import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
 from pydantic import BaseModel
-from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from starlette.responses import Response
 
 logging.basicConfig(level=logging.INFO)
@@ -75,7 +75,7 @@ app = FastAPI(
     title="Customer Churn Prediction API",
     description="ML-powered API for predicting customer churn",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 
@@ -126,8 +126,10 @@ async def predict(request: PredictionRequest):
             for col in df.select_dtypes(include=["object"]).columns:
                 if col in label_encoders:
                     le = label_encoders[col]
-                    df[col] = df[col].astype(str).map(
-                        lambda x: le.transform([x])[0] if x in le.classes_ else -1
+                    df[col] = (
+                        df[col]
+                        .astype(str)
+                        .map(lambda x: le.transform([x])[0] if x in le.classes_ else -1)
                     )
 
             # Ensure columns match
@@ -147,7 +149,7 @@ async def predict(request: PredictionRequest):
             return PredictionResponse(
                 churn_probability=round(proba, 4),
                 churn_prediction=prediction,
-                risk_level=risk_level
+                risk_level=risk_level,
             )
         except Exception as e:
             logger.error(f"Prediction error: {e}")
@@ -156,4 +158,5 @@ async def predict(request: PredictionRequest):
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

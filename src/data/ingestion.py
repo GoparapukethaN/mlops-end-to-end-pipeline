@@ -1,8 +1,8 @@
 """
 Data ingestion module for loading and initial processing of churn data.
 """
-import os
 import logging
+import os
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -42,9 +42,13 @@ class DataIngestion:
         df["Churn"] = (df["Churn"] == "Yes").astype(int)
         return df
 
-    def split_data(self, df: pd.DataFrame, test_size: float = 0.2) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    def split_data(
+        self, df: pd.DataFrame, test_size: float = 0.2
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """Split into train and test sets."""
-        train_df, test_df = train_test_split(df, test_size=test_size, stratify=df["Churn"], random_state=42)
+        train_df, test_df = train_test_split(
+            df, test_size=test_size, stratify=df["Churn"], random_state=42
+        )
         logger.info(f"Train: {len(train_df)}, Test: {len(test_df)}")
         return train_df, test_df
 
