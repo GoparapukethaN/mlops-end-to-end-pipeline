@@ -31,6 +31,9 @@ without retraining first.
 Metric details and the recompute command are documented in
 [docs/model-metrics.md](docs/model-metrics.md).
 
+For the engineering narrative behind the project, see the
+[case study](docs/case-study.md).
+
 ## Architecture
 
 ```mermaid
@@ -222,7 +225,7 @@ Latest local verification details: [docs/verification.md](docs/verification.md).
 
 ## Author
 
-**Kethan Goparapuketha**
+**Kethan Goparapu**
 
 - GitHub: [@GoparapukethaN](https://github.com/GoparapukethaN)
 - LinkedIn: [Connect with me](https://www.linkedin.com/in/kethan-goparapu/)
