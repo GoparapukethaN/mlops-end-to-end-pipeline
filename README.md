@@ -28,6 +28,9 @@ without retraining first.
 | Recall | 0.52 |
 | F1-Score | 0.58 |
 
+Metric details and the recompute command are documented in
+[docs/model-metrics.md](docs/model-metrics.md).
+
 ## Architecture
 
 ```mermaid
@@ -203,6 +206,8 @@ The training code logs:
 The repository currently uses local verification rather than hosted CI. The local checks
 cover API tests, linting, formatting, Prometheus config parsing, and Docker Compose
 configuration validation.
+
+Latest local verification details: [docs/verification.md](docs/verification.md).
 
 ## Author
 

@@ -15,6 +15,12 @@ fi
 "$python_cmd" -m isort --check-only src tests
 "$python_cmd" -m py_compile tests/test_api.py
 "$python_cmd" - <<'PY'
+from src.models.train import ChurnModel
+
+assert ChurnModel is not None
+print("training module import ok")
+PY
+"$python_cmd" - <<'PY'
 import yaml
 
 yaml.safe_load(open("configs/prometheus.yml", encoding="utf-8"))
