@@ -26,12 +26,13 @@ Coverage:
 - Source and test compilation check
 - Training module import check
 - Prometheus config parse
-- Docker Compose config validation
 - Optional Docker image build plus health and prediction smoke check
 
 This repo uses local verification as the current proof path. Hosted workflow cleanup is
 tracked separately; when Actions minutes are limited, local `make verify` /
-`make ci-local` remains the source of truth.
+`make ci-local` remains the source of truth. Docker is optional for the core local
+verification path and stays in the separate `make docker-check` / `make verify-full`
+path.
 
 Latest Docker smoke result:
 

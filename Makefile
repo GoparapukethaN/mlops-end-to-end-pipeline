@@ -1,6 +1,6 @@
 PYTHON ?= python3
 
-.PHONY: install test lint format-check prometheus-check compose-check verify ci-local docker-check
+.PHONY: install test lint format-check prometheus-check compose-check verify verify-full ci-local docker-check
 
 install:
 	$(PYTHON) -m pip install -r requirements.txt
@@ -29,6 +29,8 @@ verify:
 	./scripts/verify-local.sh
 
 ci-local: verify
+
+verify-full: verify compose-check docker-check
 
 docker-check:
 	bash scripts/verify-docker.sh

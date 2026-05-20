@@ -24,6 +24,5 @@ import yaml
 yaml.safe_load(open("configs/prometheus.yml", encoding="utf-8"))
 print("prometheus config ok")
 PY
-docker compose config --quiet
 
 echo "local verification passed"

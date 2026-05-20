@@ -67,12 +67,14 @@ make verify
 ```
 
 That command runs pytest, flake8, Black check, isort check, source compilation, training
-module import, Prometheus config parsing, and Docker Compose config validation.
+module import, and Prometheus config parsing without requiring Docker.
 
 For the container path:
 
 ```bash
 make docker-check
+# or
+make verify-full
 ```
 
 The latest Docker smoke result is recorded in [verification.md](verification.md): the
@@ -103,4 +105,3 @@ to show the observability path without pretending this is a mature monitoring pl
 - Clean up the hosted GitHub Actions workflow once workflow permissions and Actions
   minutes are available again.
 - Add a small dashboard for model health, recent predictions, latency, and drift signals.
-

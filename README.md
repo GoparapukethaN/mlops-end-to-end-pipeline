@@ -62,7 +62,7 @@ flowchart LR
 ### Prerequisites
 
 - Python 3.10+
-- Docker, optional for serving; required for the full `make verify` compose check
+- Docker, optional for serving and container smoke checks
 
 ### Local Development
 
@@ -101,13 +101,15 @@ make test
 make lint
 make format-check
 make prometheus-check
-make compose-check
 ```
 
-To verify the container path locally:
+If Docker is installed, verify the Compose/container path locally:
 
 ```bash
+make compose-check
 make docker-check
+# or
+make verify-full
 ```
 
 ## API Endpoints
@@ -169,7 +171,7 @@ curl -X POST "http://localhost:8000/predict" \
 | Monitoring | Prometheus |
 | Containerization | Docker |
 | Orchestration | Kubernetes |
-| Verification | pytest, flake8, Black, isort, compileall, Docker Compose config, Docker smoke check |
+| Verification | pytest, flake8, Black, isort, compileall, optional Docker Compose config, optional Docker smoke check |
 | Language | Python 3.10 |
 
 ## Project Structure
