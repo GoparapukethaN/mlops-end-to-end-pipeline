@@ -2,7 +2,6 @@
 Model training module with MLflow tracking.
 """
 import logging
-import os
 from pathlib import Path
 from typing import Any, Dict, Tuple
 

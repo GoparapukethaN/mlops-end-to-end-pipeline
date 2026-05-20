@@ -24,7 +24,11 @@ class DataIngestion:
         """Load data from CSV or download if not exists."""
         if not self.data_path.exists():
             logger.info("Downloading Telco Customer Churn dataset...")
-            url = "https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv"
+            url = (
+                "https://raw.githubusercontent.com/IBM/"
+                "telco-customer-churn-on-icp4d/master/data/"
+                "Telco-Customer-Churn.csv"
+            )
             self.raw_data = pd.read_csv(url)
             self.data_path.parent.mkdir(parents=True, exist_ok=True)
             self.raw_data.to_csv(self.data_path, index=False)

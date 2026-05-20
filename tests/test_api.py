@@ -14,6 +14,30 @@ def client() -> Iterator[TestClient]:
         yield test_client
 
 
+def valid_prediction_payload() -> dict[str, object]:
+    return {
+        "tenure": 12,
+        "MonthlyCharges": 70.5,
+        "TotalCharges": 846.0,
+        "Contract": "Month-to-month",
+        "PaymentMethod": "Electronic check",
+        "gender": "Female",
+        "SeniorCitizen": 0,
+        "Partner": "Yes",
+        "Dependents": "No",
+        "PhoneService": "Yes",
+        "MultipleLines": "No",
+        "InternetService": "Fiber optic",
+        "OnlineSecurity": "No",
+        "OnlineBackup": "No",
+        "DeviceProtection": "No",
+        "TechSupport": "No",
+        "StreamingTV": "Yes",
+        "StreamingMovies": "Yes",
+        "PaperlessBilling": "Yes",
+    }
+
+
 def test_root_reports_service_status(client: TestClient) -> None:
     response = client.get("/")
 
@@ -42,29 +66,7 @@ def test_readiness_requires_loaded_model(client: TestClient) -> None:
 
 
 def test_predict_returns_churn_risk(client: TestClient) -> None:
-    payload = {
-        "tenure": 12,
-        "MonthlyCharges": 70.5,
-        "TotalCharges": 846.0,
-        "Contract": "Month-to-month",
-        "PaymentMethod": "Electronic check",
-        "gender": "Female",
-        "SeniorCitizen": 0,
-        "Partner": "Yes",
-        "Dependents": "No",
-        "PhoneService": "Yes",
-        "MultipleLines": "No",
-        "InternetService": "Fiber optic",
-        "OnlineSecurity": "No",
-        "OnlineBackup": "No",
-        "DeviceProtection": "No",
-        "TechSupport": "No",
-        "StreamingTV": "Yes",
-        "StreamingMovies": "Yes",
-        "PaperlessBilling": "Yes",
-    }
-
-    response = client.post("/predict", json=payload)
+    response = client.post("/predict", json=valid_prediction_payload())
 
     assert response.status_code == 200
     prediction = response.json()
@@ -73,10 +75,55 @@ def test_predict_returns_churn_risk(client: TestClient) -> None:
     assert prediction["risk_level"] in {"Low", "Medium", "High"}
 
 
+def test_predict_rounds_probability_to_four_decimals(client: TestClient) -> None:
+    response = client.post("/predict", json=valid_prediction_payload())
+
+    assert response.status_code == 200
+    assert response.json()["churn_probability"] == 0.4744
+
+
 def test_predict_rejects_incomplete_payload(client: TestClient) -> None:
     response = client.post("/predict", json={"tenure": -1})
 
     assert response.status_code == 422
+
+
+def test_predict_rejects_negative_customer_values(client: TestClient) -> None:
+    payload = valid_prediction_payload()
+    payload["tenure"] = -1
+
+    response = client.post("/predict", json=payload)
+
+    assert response.status_code == 422
+
+
+def test_predict_rejects_unknown_categorical_values(client: TestClient) -> None:
+    payload = valid_prediction_payload()
+    payload["Contract"] = "Lifetime"
+
+    response = client.post("/predict", json=payload)
+
+    assert response.status_code == 422
+
+
+def test_readiness_returns_unavailable_when_model_is_missing(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("src.api.main.model_artifacts", None)
+
+    response = client.get("/health/ready")
+
+    assert response.status_code == 503
+
+
+def test_predict_returns_unavailable_when_model_is_missing(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("src.api.main.model_artifacts", None)
+
+    response = client.post("/predict", json=valid_prediction_payload())
+
+    assert response.status_code == 503
 
 
 def test_metrics_endpoint_exposes_prometheus_metrics(client: TestClient) -> None:

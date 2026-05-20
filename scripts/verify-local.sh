@@ -8,12 +8,10 @@ else
 fi
 
 "$python_cmd" -m pytest
-"$python_cmd" -m flake8 src tests \
-  --ignore=E501,W292,W293,F401,E302,E303,E261,E262 \
-  --max-line-length=150
+"$python_cmd" -m flake8 src tests --max-line-length=88
 "$python_cmd" -m black --check src tests
 "$python_cmd" -m isort --check-only src tests
-"$python_cmd" -m py_compile tests/test_api.py
+"$python_cmd" -m compileall -q src tests
 "$python_cmd" - <<'PY'
 from src.models.train import ChurnModel
 

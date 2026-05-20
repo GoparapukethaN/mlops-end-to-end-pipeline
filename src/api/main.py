@@ -4,14 +4,13 @@ FastAPI service for churn prediction with Prometheus metrics.
 import logging
 import os
 from contextlib import asynccontextmanager
-from typing import Any, Dict
+from typing import Literal
 
 import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from starlette.responses import Response
 
 logging.basicConfig(level=logging.INFO)
@@ -24,27 +23,35 @@ PREDICTION_LATENCY = Histogram("prediction_latency_seconds", "Prediction latency
 # Global model variable
 model_artifacts = None
 
+YesNo = Literal["Yes", "No"]
+ServiceYesNo = Literal["Yes", "No", "No internet service"]
+
 
 class PredictionRequest(BaseModel):
-    tenure: int
-    MonthlyCharges: float
-    TotalCharges: float
-    Contract: str = "Month-to-month"
-    PaymentMethod: str = "Electronic check"
-    gender: str = "Male"
-    SeniorCitizen: int = 0
-    Partner: str = "No"
-    Dependents: str = "No"
-    PhoneService: str = "Yes"
-    MultipleLines: str = "No"
-    InternetService: str = "Fiber optic"
-    OnlineSecurity: str = "No"
-    OnlineBackup: str = "No"
-    DeviceProtection: str = "No"
-    TechSupport: str = "No"
-    StreamingTV: str = "No"
-    StreamingMovies: str = "No"
-    PaperlessBilling: str = "Yes"
+    tenure: int = Field(ge=0)
+    MonthlyCharges: float = Field(ge=0)
+    TotalCharges: float = Field(ge=0)
+    Contract: Literal["Month-to-month", "One year", "Two year"] = "Month-to-month"
+    PaymentMethod: Literal[
+        "Electronic check",
+        "Mailed check",
+        "Bank transfer (automatic)",
+        "Credit card (automatic)",
+    ] = "Electronic check"
+    gender: Literal["Female", "Male"] = "Male"
+    SeniorCitizen: Literal[0, 1] = 0
+    Partner: YesNo = "No"
+    Dependents: YesNo = "No"
+    PhoneService: YesNo = "Yes"
+    MultipleLines: Literal["Yes", "No", "No phone service"] = "No"
+    InternetService: Literal["DSL", "Fiber optic", "No"] = "Fiber optic"
+    OnlineSecurity: ServiceYesNo = "No"
+    OnlineBackup: ServiceYesNo = "No"
+    DeviceProtection: ServiceYesNo = "No"
+    TechSupport: ServiceYesNo = "No"
+    StreamingTV: ServiceYesNo = "No"
+    StreamingMovies: ServiceYesNo = "No"
+    PaperlessBilling: YesNo = "Yes"
 
 
 class PredictionResponse(BaseModel):
@@ -139,7 +146,7 @@ async def predict(request: PredictionRequest):
             df = df[feature_columns]
 
             # Make prediction
-            proba = model.predict_proba(df)[0][1]
+            proba = float(model.predict_proba(df)[0][1])
             prediction = int(proba >= 0.5)
 
             risk_level = "Low" if proba < 0.3 else "Medium" if proba < 0.7 else "High"

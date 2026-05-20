@@ -52,14 +52,14 @@ flowchart LR
 - **API serving:** FastAPI endpoints for health, readiness, prediction, metrics, and docs
 - **Monitoring:** Prometheus scrape config for prediction and latency metrics
 - **Packaging:** Dockerfile, Docker Compose, and Kubernetes deployment manifest
-- **Testing:** FastAPI smoke tests for health, readiness, prediction, and metrics
+- **Testing:** pytest checks for API behavior, validation, data cleaning, and feature prep
 
 ## Quick Start
 
 ### Prerequisites
 
 - Python 3.10+
-- Docker, optional
+- Docker, optional for serving; required for the full `make verify` compose check
 
 ### Local Development
 
@@ -99,6 +99,12 @@ make lint
 make format-check
 make prometheus-check
 make compose-check
+```
+
+To verify the container path locally:
+
+```bash
+make docker-check
 ```
 
 ## API Endpoints
@@ -144,9 +150,9 @@ curl -X POST "http://localhost:8000/predict" \
 
 ```json
 {
-  "churn_probability": 0.72,
-  "churn_prediction": 1,
-  "risk_level": "High"
+  "churn_probability": 0.4744,
+  "churn_prediction": 0,
+  "risk_level": "Medium"
 }
 ```
 
@@ -160,7 +166,7 @@ curl -X POST "http://localhost:8000/predict" \
 | Monitoring | Prometheus |
 | Containerization | Docker |
 | Orchestration | Kubernetes |
-| Verification | pytest, flake8, Black, isort, Docker Compose config |
+| Verification | pytest, flake8, Black, isort, compileall, Docker Compose config, Docker smoke check |
 | Language | Python 3.10 |
 
 ## Project Structure
@@ -201,11 +207,16 @@ The training code logs:
 - metrics: accuracy, precision, recall, F1, AUC
 - model artifacts
 
+The API loads the repo-owned `models/churn_model.joblib` artifact for local demos and
+tests. I treat `MODEL_PATH` as a trusted local artifact path; joblib/pickle files should
+not be loaded from untrusted sources.
+
 ## Verification Status
 
-The repository currently uses local verification rather than hosted CI. The local checks
-cover API tests, linting, formatting, Prometheus config parsing, and Docker Compose
-configuration validation.
+The repository currently uses local verification as the primary proof path. The local
+checks cover 15 pytest tests, strict linting, formatting, source compilation, Prometheus
+config parsing, Docker Compose configuration validation, and an optional Docker image
+smoke check.
 
 Latest local verification details: [docs/verification.md](docs/verification.md).
 
